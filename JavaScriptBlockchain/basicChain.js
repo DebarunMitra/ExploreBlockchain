@@ -7,16 +7,27 @@ class Block{
     this.data = data;
     this.previewhash = previewhash;
     this.hash = this.createHash();
+    this.nonce = 0;
   }
 
   createHash(){
-    return SHA256(this.index + this.previewhash + this.timestamp + JSON.stringify(this.data)).toString();
+    return SHA256(this.index + this.previewhash + this.timestamp + JSON.stringify(this.data) + this.nonce).toString();
+  }
+
+  mineBlock(difficulty){
+    while(this.hash.substring(0, difficulty) !== Array(difficulty+1).join("0")){
+      this.nonce++;
+      this.hash =this.createHash();
+    }
+
+    console.log(this.hash);
   }
 }
 
 class Blockchain{
   constructor(){
     this.chain = [this.setGenesisBlock()];
+    this.difficulty = 5;
   }
 
   setGenesisBlock(){
@@ -29,7 +40,8 @@ class Blockchain{
 
   addBlock(newBlock){
     newBlock.previewhash = this.getLatestBlock().hash
-    newBlock.hash = newBlock.createHash();
+    // newBlock.hash = newBlock.createHash();
+    newBlock.mineBlock(this.difficulty);
     this.chain.push(newBlock);
   }
 
@@ -52,14 +64,17 @@ class Blockchain{
 }
 
 let devCoin = new Blockchain();
+console.log("Create block 1");
 devCoin.addBlock(new Block(1, "10/01/2021", {sender: 'John', amount: 1000.0, receiver: 'Doe'}));
+console.log("Create block 2");
 devCoin.addBlock(new Block(2, "10/01/2021", {sender: 'Aarya', amount: 5000.0, receiver: 'Stark'}));
+console.log("Create block 3");
 devCoin.addBlock(new Block(3, "10/01/2021", {sender: 'Sansa', amount: 3000.0, receiver: 'Stark'}));
 
-
+// ----------imp 1------
 // console.log(JSON.stringify(devCoin, null, 4));
 
-console.log(`Coin Validity: ${devCoin.isValidChain()}`);
+// console.log(`Coin Validity: ${devCoin.isValidChain()}`);
 
 //change the data of block 1
 // devCoin.chain[1].data = {sender: 'John', amount: 100.0, receiver: 'Doe'}
@@ -68,4 +83,6 @@ console.log(`Coin Validity: ${devCoin.isValidChain()}`);
 // console.log(JSON.stringify(devCoin, null, 4));
 
 
-console.log(`Coin Validity: ${devCoin.isValidChain()}`);
+// console.log(`Coin Validity: ${devCoin.isValidChain()}`);
+// ----------imp 1------
+
